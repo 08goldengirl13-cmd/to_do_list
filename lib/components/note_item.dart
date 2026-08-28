@@ -18,12 +18,12 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
   void initState() {
     super.initState();
     // Dastlabki holatni note'dan olamiz
-    isCompleted = widget.note.status == "Completed";
-    isCompleted = widget.note.status == "Not Started";
   }
 
   @override
   Widget build(BuildContext context) {
+    isCompleted = widget.note.status == "Not Started";
+
     const primaryColor = Color(0xFF6C5CE7);
 
     return MouseRegion(
@@ -43,7 +43,6 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
                 // 1. UI holatini darhol o'zgartiramiz
                 setState(() {
                   isCompleted = newValue;
-                  widget.note.status = newValue ? 'Completed' : 'Not Completed';
                   widget.note.status = newValue ? 'Started' : 'Not Started';
                 });
 
@@ -58,7 +57,6 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
                   setState(() {
                     print("hello---------------");
                     isCompleted = !newValue;
-                    widget.note.status = !newValue ? 'Completed' : 'Not Completed';
                     widget.note.status = !newValue ? 'Started' : 'Not Started';
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
