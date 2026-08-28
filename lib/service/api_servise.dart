@@ -10,7 +10,7 @@ class ApiService {
   static Future<bool> addNote(NoteModel note) async {
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/todos/add/"),
+        Uri.parse("$baseUrl/todo/add/"),
         headers: {
           'Content-Type': 'application/json',
         },

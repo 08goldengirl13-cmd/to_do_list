@@ -19,6 +19,7 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
     super.initState();
     // Dastlabki holatni note'dan olamiz
     isCompleted = widget.note.status == "Completed";
+    isCompleted = widget.note.status == "Not Started";
   }
 
   @override
@@ -43,6 +44,7 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
                 setState(() {
                   isCompleted = newValue;
                   widget.note.status = newValue ? 'Completed' : 'Not Completed';
+                  widget.note.status = newValue ? 'Started' : 'Not Started';
                 });
 
                 // 2. Bazaga yangilangan statusni yuboramiz (ID birinchi, Status keyin)
@@ -57,6 +59,7 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
                     print("hello---------------");
                     isCompleted = !newValue;
                     widget.note.status = !newValue ? 'Completed' : 'Not Completed';
+                    widget.note.status = !newValue ? 'Started' : 'Not Started';
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Xatolik: Status yangilanmadi")),

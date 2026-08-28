@@ -3,14 +3,14 @@ class NoteModel {
   String title;
   String description;
   String status;
-  String deadline;
+  String ? deadline;
 
   NoteModel({
     this.id,
     required this.title,
     required this.description,
      this.status = "Not Completed",
-    required this.deadline,
+     this.deadline,
   });
 
   factory NoteModel.fromJson(Map<String, dynamic> json){
@@ -18,8 +18,8 @@ class NoteModel {
       id: json['id'].toString(),
       title: json['title'],
       description: json['description'],
-      status: json['status'] ?? "Not Completed",
-      deadline: json['deadline'],
+      status: json['status'] ?? "Not Started",
+      deadline: json['deadline'] ?? null,
     );
   }
 
