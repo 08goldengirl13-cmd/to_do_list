@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> addNote()async{
-    NoteModel note = NoteModel(title: noteController.text, description: descController.text, deadline: DateTime.now().toIso8601String());
+    NoteModel note = NoteModel(title: noteController.text, description: descController.text, deadline: DateTime.now().toIso8601String().split('T')[0]);
    await ApiService.addNote(note);
     Navigator.pop(context);
     print("hello2---------------addNote");
@@ -58,6 +58,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
+    
+    final filteredNotes = notes.where((note) {
+      if (selected == "ALL") return true;
+      if (selected == "COMPLETE") return note.status == "Completed";
+      if (selected == "INCOMPLETE") return note.status=="Not Started";
+      return true;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -91,6 +98,7 @@ class _HomePageState extends State<HomePage> {
                     color: colorScheme.onPrimary,
                   ),),
                   TextField(
+                    style: TextStyle(color: colorScheme.onPrimary),
                     controller:  noteController,
                     decoration: InputDecoration(
                       hintText: "Add a note..,",
@@ -124,6 +132,7 @@ class _HomePageState extends State<HomePage> {
                     height: 20,
                   ),
                   TextField(
+                    style: TextStyle(color: colorScheme.onPrimary),
                     controller: descController,
                     decoration: InputDecoration(
                       hintText: "Add a describtion..,",
@@ -319,13 +328,15 @@ class _HomePageState extends State<HomePage> {
               // 2. Ro'yxat qismi - Column ichida Expanded bo'lishi shart!
               Expanded(
                 child: ListView.separated(
-                  itemCount: notes.length,
+                  itemCount: filteredNotes.length,
                   separatorBuilder: (context, index) =>
                       Divider(color: colorScheme.outlineVariant),
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: NoteItemWidget(note: notes[index]),
+                      child: NoteItemWidget(
+                          key: ValueKey(filteredNotes[index].id),
+                          note: filteredNotes[index]),
                     );
                   },
                 ),

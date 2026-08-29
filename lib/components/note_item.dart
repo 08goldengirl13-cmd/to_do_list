@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:to_do_list/service/model/note_model.dart';
 import '../service/api_servise.dart';
 
 class NoteItemWidget extends StatefulWidget {
-  final NoteModel note; // O'zgaruvchi shu yerda bo'lishi kerak
+  final NoteModel note;
   const NoteItemWidget({super.key, required this.note});
 
   @override
@@ -12,17 +13,105 @@ class NoteItemWidget extends StatefulWidget {
 
 class _NoteItemWidgetState extends State<NoteItemWidget> {
   bool _isHovered = false;
-  late bool isCompleted; // Holatni saqlash uchun
+  late bool isCompleted;
 
-  @override
-  void initState() {
-    super.initState();
-    // Dastlabki holatni note'dan olamiz
+  void _showEditDialog() {
+    final titleController = TextEditingController(text: widget.note.title);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        backgroundColor: colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Edit Note",
+                style: GoogleFonts.kanit(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: titleController,
+                style: TextStyle(color: colorScheme.onPrimary),
+                decoration: InputDecoration(
+                  hintText: "Edit title...",
+                  hintStyle: TextStyle(
+                    color: colorScheme.onPrimary.withOpacity(0.6),
+                    fontSize: 14,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: colorScheme.surface, width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: colorScheme.surface, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: colorScheme.onPrimary, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'CANCEL',
+                      style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      bool success = await ApiService.editNote(
+                        widget.note.id!,
+                        titleController.text,
+                      );
+                      if (success) {
+                        setState(() {
+                          widget.note.title = titleController.text;
+                        });
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.onPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'APPLY',
+                      style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    isCompleted = widget.note.status == "Not Started";
+    isCompleted = widget.note.status == "Started" || widget.note.status == "Completed";
 
     const primaryColor = Color(0xFF6C5CE7);
 
@@ -40,24 +129,20 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
               onChanged: (bool? newValue) async {
                 if (newValue == null) return;
 
-                // 1. UI holatini darhol o'zgartiramiz
                 setState(() {
                   isCompleted = newValue;
-                  widget.note.status = newValue ? 'Started' : 'Not Started';
+                  widget.note.status = newValue ? 'Completed' : 'Not Started';
                 });
 
-                // 2. Bazaga yangilangan statusni yuboramiz (ID birinchi, Status keyin)
                 bool success = await ApiService.updateStatus(
-                    widget.note.id!,
-                    widget.note.status
+                  widget.note.id!,
+                  widget.note.status
                 );
 
-                // 3. Xatolik bo'lsa ortga qaytaramiz
                 if (!success) {
                   setState(() {
-                    print("hello---------------");
                     isCompleted = !newValue;
-                    widget.note.status = !newValue ? 'Started' : 'Not Started';
+                    widget.note.status = isCompleted ? 'Completed' : 'Not Started';
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Xatolik: Status yangilanmadi")),
@@ -73,7 +158,6 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                   color: Theme.of(context).colorScheme.onSurface,
-                  // Statusga qarab ustidan chizish
                   decoration: isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
                   decorationColor: Colors.grey.shade500,
                 ),
@@ -88,12 +172,22 @@ class _NoteItemWidgetState extends State<NoteItemWidget> {
                   IconButton(
                     icon: const Icon(Icons.edit_outlined, size: 18),
                     color: Colors.grey.shade400,
-                    onPressed: () {},
+                    onPressed: _showEditDialog,
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline, size: 18),
                     color: Colors.grey.shade400,
-                    onPressed: () {},
+                    onPressed: () async {
+                      bool success = await ApiService.deleteNote(widget.note.id!);
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Muvaffaqiyatli o'chirildi")),
+                        );
+                        setState(() {
+                          ApiService.fetchNotes();
+                        });
+                      }
+                    },
                   ),
                 ],
               ),

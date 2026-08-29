@@ -22,6 +22,7 @@ class ApiService {
         return true;
       } else {
         print("Xatolik kodi: ${response.statusCode}");
+        print("Javob: ${response.body}");
         return false;
       }
     } catch (e) {
@@ -29,6 +30,38 @@ class ApiService {
       return false;
     }
   }
+
+  static Future<bool> deleteNote(String id)async{
+    try{
+      final response = await http.delete(Uri.parse("$baseUrl/todos/$id"));
+      return response.statusCode == 200 || response.statusCode == 204 ;
+    } catch(e){
+      print("O'chirishda Xatolik: $e");
+      return false;
+    }
+
+  }
+
+
+  static Future<bool> editNote(String id, String newTitle) async {
+    try {
+            final response = await http.patch(
+        Uri.parse("$baseUrl/todos/$id/"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "title": newTitle,
+        }),
+      );
+
+      // 3. Qisqa shaklda status kodini tekshirib qaytaramiz
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      print("Xatolik: $e");
+      print("Hello4----------------UpdateStatus");
+      return false; // Xatolik bo'lsa false qaytaradi
+    }
+  }
+
 
 
   static Future<bool> updateStatus(String id, String newStatus) async {

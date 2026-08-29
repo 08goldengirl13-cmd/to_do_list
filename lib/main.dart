@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do_list/pages/main_page.dart';
-
-import 'core/theme/dark_theme.dart';
-import 'core/theme/light_theme.dart';
+import 'package:to_do_list/theme/dark_theme.dart';
+import 'package:to_do_list/theme/light_theme.dart';
 
 void main(){
   runApp(MyApp());

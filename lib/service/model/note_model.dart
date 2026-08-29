@@ -9,7 +9,7 @@ class NoteModel {
     this.id,
     required this.title,
     required this.description,
-     this.status = "Not Completed",
+     this.status = "Not Started",
      this.deadline,
   });
 
