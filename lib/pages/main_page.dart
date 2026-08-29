@@ -32,6 +32,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> addNote()async{
     NoteModel note = NoteModel(title: noteController.text, description: descController.text, deadline: DateTime.now().toIso8601String().split('T')[0]);
    await ApiService.addNote(note);
+   noteController.clear();
+   descController.clear();
     Navigator.pop(context);
     print("hello2---------------addNote");
   }
